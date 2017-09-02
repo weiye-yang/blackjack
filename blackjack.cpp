@@ -195,7 +195,7 @@ int getCardValue(const Card &card)
 }
 
 //deal a card to the player
-void dealPlayer(const Card *&cardPtr, int &score, int &aces)//first argument here is a reference to a pointer that points to a const Card
+void dealPlayer(const Card *&cardPtr, int &score, int &aces)//first param here is a reference to a pointer that points to a const Card
 {
 	std::cout << "You are dealt a card from the deck. It is ";
 	printCard(*cardPtr); std::cout << ".\n";
