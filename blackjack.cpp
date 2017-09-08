@@ -4,11 +4,13 @@
 #include "stdafx.h"
 #include <iostream>
 #include <array>
-#include <ctime>
 #include <cstdlib>
+#include "Card.h"
+#include "Deck.h"
 
-//learncpp Chapter 6 quiz questions 6 and 7
+//learncpp Chapter 8 quiz question 4
 
+/*
 enum Rank
 {
 	TWO,
@@ -143,7 +145,7 @@ void printCard(const Card &card)
 
 	std::cout << rankCode << suitCode;
 }
-/*
+
 void printDeck(const std::array<Card, totalCards> &deck)
 {
 	for (const auto &card : deck)
@@ -152,26 +154,7 @@ void printDeck(const std::array<Card, totalCards> &deck)
 		std::cout << "\n";
 	}
 }
-*/
-void swapCard(Card &card1, Card &card2)
-{
-	Card temp = card1;
-	card1 = card2;
-	card2 = temp;
-}
 
-void shuffleDeck(std::array<Card, totalCards> &deck)
-{
-	//seed to current time
-	srand(time(0));
-	rand();
-
-	for (Card &card : deck)
-	{
-		int randomCardNo = rand() % totalCards;
-		swapCard(card, deck[randomCardNo]);
-	}
-}
 
 //blackjack values
 int getCardValue(const Card &card)
@@ -194,54 +177,78 @@ int getCardValue(const Card &card)
 	}
 }
 
-//deal a card to the player
-void dealPlayer(const Card *&cardPtr, int &score, int &aces)//first param here is a reference to a pointer that points to a const Card
+void swapCard(Card &card1, Card &card2)
 {
+	Card temp = card1;
+	card1 = card2;
+	card2 = temp;
+}
+
+
+void shuffleDeck(std::array<Card, Card::totalCards> &deck)
+{
+	//seed to current time
+	srand(time(0));
+	rand();
+
+	for (Card &card : deck)
+	{
+		int randomCardNo = rand() % Card::totalCards;
+		swapCard(card, deck[randomCardNo]);
+	}
+}
+*/
+
+//deal a card to the player
+void dealPlayer(Deck &deck, int &score, int &aces)
+{
+	const Card &card = deck.dealCard();
 	std::cout << "You are dealt a card from the deck. It is ";
-	printCard(*cardPtr); std::cout << ".\n";
+	card.printCard(); std::cout << ".\n";
 
 	//ace?
-	if (cardPtr->rank == ACE)
+	if (card.isAce())
 		++aces;
 
 	//increment score by value of card
-	score += getCardValue(*cardPtr++);
+	score += card.getCardValue();
 
 	std::cout << "Your score is now " << score << ".\n";
 }
 
 //dealer draws a card
-void dealDealer(const Card *&cardPtr, int &score, int &aces)
+void dealDealer(Deck &deck, int &score, int &aces)
 {
+	const Card &card = deck.dealCard();
 	std::cout << "The dealer is dealt a card from the deck. It is ";
-	printCard(*cardPtr); std::cout << ".\n";
+	card.printCard(); std::cout << ".\n";
 
 	//ace?
-	if (cardPtr->rank == ACE)
+	if (card.isAce())
 		++aces;
 
 	//increment score by value of card
-	score += getCardValue(*cardPtr++);
+	score += card.getCardValue();
 
 	std::cout << "Dealer's score is now " << score << ".\n";
 }
 
-int playBlackjack(const std::array<Card, totalCards> deck)
+
+int playBlackjack(Deck deck)
 {
-	const Card *cardPtr = &deck[0];
 	int playerScore(0), dealerScore(0);
 	int playerAces(0), dealerAces(0);// aces are special
 
 	//player is dealt two cards and dealer is dealt one card
-	dealPlayer(cardPtr, playerScore, playerAces);
-	dealPlayer(cardPtr, playerScore, playerAces);
+	dealPlayer(deck, playerScore, playerAces);
+	dealPlayer(deck, playerScore, playerAces);
 	if (playerScore == 21)
 	{
 		std::cout << "Blackjack!";
 		return 1;
 	}
 
-	dealDealer(cardPtr, dealerScore, dealerAces);
+	dealDealer(deck, dealerScore, dealerAces);
 
 	//player's turn.
 	std::cout << "Your turn.\n";
@@ -257,7 +264,7 @@ int playBlackjack(const std::array<Card, totalCards> deck)
 		if (choice == 's')
 			break;
 
-		dealPlayer(cardPtr, playerScore, playerAces);
+		dealPlayer(deck, playerScore, playerAces);
 
 		if (playerScore > 21)
 		{
@@ -279,7 +286,7 @@ int playBlackjack(const std::array<Card, totalCards> deck)
 	std::cout << "Dealer's turn.\n";
 	while (dealerScore < 17)
 	{
-		dealDealer(cardPtr, dealerScore, dealerAces);
+		dealDealer(deck, dealerScore, dealerAces);
 
 		if (dealerScore > 21 && dealerAces > 0)
 		{
@@ -299,26 +306,16 @@ int playBlackjack(const std::array<Card, totalCards> deck)
 		return 0;
 }
 
+
 int main()
 {
-	std::cout << "===BLACKJACK===\nBy Weiye Yang\n1st September 2017\n\n";
+	std::cout << "===BLACKJACK===\nBy Weiye Yang\n8th September 2017\n\n";
 
 	//initialize deck of cards
-	std::array<Card, totalCards> deck;
-	int cardNo = 0;
-	for (int suit = 0; suit < TOTAL_SUITS; ++suit)
-	{
-		for (int rank = 0; rank < TOTAL_RANKS; ++rank)
-		{
-			//cast integers into our enumerated types
-			deck[cardNo] = { static_cast<Rank>(rank), static_cast<Suit>(suit) };
-
-			++cardNo;
-		}
-	}
+	Deck deck;
 
 	std::cout << "The cards are shuffled.\n";
-	shuffleDeck(deck);
+	deck.shuffleDeck();
 
 	//blackjack
 	int result = playBlackjack(deck);
