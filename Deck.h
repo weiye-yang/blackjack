@@ -47,6 +47,7 @@ public:
 			int randomCardNo = rand() % Card::totalCards;
 			swapCard(card, m_deck[randomCardNo]);
 		}
+		m_cardIndex = 0;
 	}
 
 };
